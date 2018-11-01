@@ -1,47 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:orientation="vertical"
-        android:gravity="center"
-        tools:showIn="@layout/activity_main"
-        tools:context=".MainActivity">
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <TextView
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:context=".ui.MainActivity"
+        tools:showIn="@layout/activity_main">
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hello World!"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/choose_use_case"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-            android:id="@+id/create_keys_button"
+        <Button
+            android:id="@+id/verify_passwords_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Create Keys"/>
+            android:layout_marginBottom="16dp"
+            android:text="@string/verify_passwords"
+            android:textAllCaps="false" />
 
-    <Button
-            android:id="@+id/sign_data_button"
+        <Button
+            android:id="@+id/encrypt_rsa_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sign Data"/>
+            android:layout_marginBottom="16dp"
+            android:text="@string/encrypt_with_rsa"
+            android:textAllCaps="false" />
 
-    <Button
-            android:id="@+id/verify_data_button"
+        <Button
+            android:id="@+id/encrypt_aes_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Verify Data"/>
+            android:layout_marginBottom="16dp"
+            android:text="@string/encrypt_with_aes"
+            android:textAllCaps="false" />
 
-    <Button
-            android:id="@+id/read_data_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Read Data"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/colorAccent" />
 
-</LinearLayout>
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

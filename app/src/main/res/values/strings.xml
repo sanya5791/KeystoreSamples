@@ -1,4 +1,27 @@
 <resources>
     <string name="app_name">TasteKeyStore</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_user_password_verification_acivity">User Password Verification</string>
+    <string name="title_activity_encrypt">EncryptActivity</string>
+    <string name="verify_passwords">Verify Passwords</string>
+    <string name="encrypt_with_rsa">Encrypt with RSA</string>
+    <string name="encrypt_with_aes">Encrypt with AES</string>
+    <string name="rsa_encryption_decryption">RSA Encryption/Decryption\nRSA Key is generated and saved in Android Keystore\nInput length must be under 64 bytes</string>
+    <string name="aes_encryption_decryption">AES Encryption/Decryption\nAES Key and IV vector are saved to Shared Preferences (AesKeyStoreImpl). Besides it can be saved to any implementation of AesKeystore. </string>
+    <string name="default_text_to_encrypt">123</string>
+    <string name="input">Input</string>
+    <string name="output">Output</string>
+    <string name="encrypt_data">Encrypt Data</string>
+    <string name="decrypt_data">Decrypt Data</string>
+    <string name="info_output">Info Output</string>
+    <string name="verify_password">Verify Password</string>
+    <string name="enter_password">Enter Password</string>
+    <string name="create_keys">Create Keys</string>
+    <string name="sign_password">Sign Password</string>
+    <string name="keys_generated">Keys generated</string>
+    <string name="password_signed">Password Signed</string>
+    <string name="password_verification_description">Description: Password entered by User can be securely verified with Android System Keystore.\nFirst step - create keys.\nThen enter a password and \'Sign\' the password. Signature of \'Password\' can be saved anywhere as it is.\nNext enter data to \'Verify Password\' and press corresponding button. Entered password and signature are checked with Android Keystore.\nResult of verification will be shown on top of the screen.</string>
+    <string name="rsa_encryption">RSA Encryption</string>
+    <string name="aes_encryption">AES Encryption</string>
+    <string name="choose_use_case">Choose Use Case</string>
 </resources>
