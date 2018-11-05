@@ -6,6 +6,7 @@
     <string name="verify_passwords">Verify Passwords</string>
     <string name="encrypt_with_rsa">Encrypt with RSA</string>
     <string name="encrypt_with_aes">Encrypt with AES</string>
+    <string name="ask_password">Ask System Password</string>
     <string name="rsa_encryption_decryption">RSA Encryption/Decryption\nRSA Key is generated and saved in Android Keystore\nInput length must be under 64 bytes</string>
     <string name="aes_encryption_decryption">AES Encryption/Decryption\nAES Key and IV vector are saved to Shared Preferences (AesKeyStoreImpl). Besides it can be saved to any implementation of AesKeystore. </string>
     <string name="default_text_to_encrypt">123</string>
@@ -24,4 +25,11 @@
     <string name="rsa_encryption">RSA Encryption</string>
     <string name="aes_encryption">AES Encryption</string>
     <string name="choose_use_case">Choose Use Case</string>
+    <string name="ask_password_title_auth">Create Custom Title</string>
+    <string name="ask_password_msg_auth">Create Custom Message</string>
+    <string name="password_success_msg">Correct Password</string>
+    <string name="password_fail_msg">Wrong Password</string>
+    <string name="set_system_password">Set System Password first</string>
+    <string name="set">Set</string>
+
 </resources>
