@@ -3,8 +3,8 @@ package com.akhutornoy.tastekeystore.data
 import android.content.SharedPreferences
 import android.util.Base64
 import com.akhutornoy.tastekeystore.security.AesKeystore
-import com.akhutornoy.tastekeystore.utils.get
-import com.akhutornoy.tastekeystore.utils.put
+import com.akhutornoy.tastekeystore.data.extenstions.get
+import com.akhutornoy.tastekeystore.data.extenstions.put
 import java.io.*
 import javax.crypto.SecretKey
 

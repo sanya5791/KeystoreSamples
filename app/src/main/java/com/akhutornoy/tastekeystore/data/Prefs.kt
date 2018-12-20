@@ -1,8 +1,8 @@
 package com.akhutornoy.tastekeystore.data
 
 import android.content.SharedPreferences
-import com.akhutornoy.tastekeystore.utils.get
-import com.akhutornoy.tastekeystore.utils.put
+import com.akhutornoy.tastekeystore.data.extenstions.get
+import com.akhutornoy.tastekeystore.data.extenstions.put
 
 const val SIGNATURE_KEY = "SIGNATURE_KEY"
 const val ENCRYPTED_RSA_STRING_KEY = "ENCRYPTED_RSA_STRING_KEY"

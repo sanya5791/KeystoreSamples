@@ -1,4 +1,4 @@
-package com.akhutornoy.tastekeystore.utils
+package com.akhutornoy.tastekeystore.data.extenstions
 
 import android.content.SharedPreferences
 

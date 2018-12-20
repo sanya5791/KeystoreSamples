@@ -9,7 +9,7 @@ import android.view.View
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import com.akhutornoy.tastekeystore.R
-import com.akhutornoy.tastekeystore.utils.ui.showSnack
+import com.akhutornoy.tastekeystore.ui.extensions.showSnack
 import com.github.ajalt.timberkt.Timber
 import com.google.android.material.snackbar.Snackbar
 
@@ -49,7 +49,7 @@ class SystemPasswordAsker(private val rootView: View) {
                 Timber.d { "onActivityResult(): error=$resultCode" }
                 R.string.password_fail_msg
             }
-            showSnack(rootView, msgResId)
+            rootView.showSnack(msgResId)
             true
         } else {
             false

@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.akhutornoy.tastekeystore.Injections
 import com.akhutornoy.tastekeystore.R
 import com.akhutornoy.tastekeystore.security.Encrypter
-import com.akhutornoy.tastekeystore.utils.ui.hideKeyboard
+import com.akhutornoy.tastekeystore.ui.extensions.hideKeyboard
 import com.github.ajalt.timberkt.Timber
 import kotlinx.android.synthetic.main.activity_encrypt.*
 import kotlinx.android.synthetic.main.content_encrypt.*

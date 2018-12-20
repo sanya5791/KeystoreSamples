@@ -9,7 +9,7 @@ import com.akhutornoy.tastekeystore.Injections
 import com.akhutornoy.tastekeystore.R
 import com.akhutornoy.tastekeystore.data.Repository
 import com.akhutornoy.tastekeystore.security.DataSignatureVerifier
-import com.akhutornoy.tastekeystore.utils.ui.hideKeyboard
+import com.akhutornoy.tastekeystore.ui.extensions.hideKeyboard
 import kotlinx.android.synthetic.main.activity_user_password_verification_activity.*
 import kotlinx.android.synthetic.main.content_user_password_verification_acivity.*
 
