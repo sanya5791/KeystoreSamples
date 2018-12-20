@@ -83,7 +83,7 @@ class DataSignatureVerifier(private val context: Context) {
     /**
      * Signs the data using the key pair stored in the Android Key Store.  This signature can be
      * used with the data later to verify it was signed by this application.
-     * @return A string encoding of the data signature generated
+     * @return Base64 encoded string of generated encrypted Signature data
      */
     @Throws(
         KeyStoreException::class,
@@ -97,38 +97,7 @@ class DataSignatureVerifier(private val context: Context) {
     fun signData(inputStr: String): String {
         val data = inputStr.toByteArray()
 
-        // BEGIN_INCLUDE(sign_load_keystore)
-        val ks = getKeyStore()
-
-        // Load the key pair from the Android Key Store
-        val entry = ks.getEntry(ALIAS_VERIFY_SIGNATURE, null)
-
-        /* If the entry is null, keys were never stored under this alias.
-         * Debug steps in this situation would be:
-         * -Check the list of aliases by iterating over Keystore.aliases(), be sure the alias
-         *   exists.
-         * -If that's empty, verify they were both stored and pulled from the same keystore
-         *   "AndroidKeyStore"
-         */
-        if (entry == null) {
-            val errorMsg = "signData(): No key found under alias: $ALIAS_VERIFY_SIGNATURE"
-            Timber.d { errorMsg }
-            Timber.d { "signData(): Exiting signData()..." }
-            return ""
-        }
-
-        /* If entry is not a KeyStore.PrivateKeyEntry, it might have gotten stored in a previous
-         * iteration of your application that was using some other mechanism, or been overwritten
-         * by something else using the same keystore with the same alias.
-         * You can determine the type using entry.getClass() and debug from there.
-         */
-        if (entry !is KeyStore.PrivateKeyEntry) {
-            val errMsg = "signData(): Not an instance of a PrivateKeyEntry"
-            Timber.d { errMsg }
-            Timber.d { "signData(): Exiting signData()..." }
-            return ""
-        }
-        // END_INCLUDE(sign_data)
+        val privateKeyEntry = getPrivateKeyEntry() ?: return ""
 
         // BEGIN_INCLUDE(sign_create_signature)
         // This class doesn't actually represent the signature,
@@ -137,7 +106,7 @@ class DataSignatureVerifier(private val context: Context) {
         val s = Signature.getInstance(SIGNATURE_SHA256withRSA)
 
         // Initialize Signature using specified private key
-        s.initSign(entry.privateKey)
+        s.initSign(privateKeyEntry.privateKey)
 
         // Sign the data, store the result as a Base64 encoded String.
         s.update(data)
@@ -147,14 +116,6 @@ class DataSignatureVerifier(private val context: Context) {
         val signatureString = Base64.encodeToString(signatureBytes, Base64.DEFAULT)
         Timber.d { "signData(): signature=$signatureString" }
         return signatureString
-    }
-
-    private fun getKeyStore(): KeyStore {
-        val ks = KeyStore.getInstance(ANDROID_KEYSTORE_PROVIDER)
-        // Weird artifact of Java API.  If you don't have an InputStream to load, you still need
-        // to call "load", or it'll crash.
-        ks.load(null)
-        return ks
     }
 
     /**
@@ -176,13 +137,12 @@ class DataSignatureVerifier(private val context: Context) {
     fun verifyData(input: String, signatureStr: String?): Boolean {
         val data = input.toByteArray()
         val signature: ByteArray
+
         // BEGIN_INCLUDE(decode_signature)
-
         // Make sure the signature string exists.  If not, bail out, nothing to do.
-
         if (signatureStr == null) {
-            Timber.d { "verifyData(): Invalid signature." }
-            Timber.d { "verifyData(): Exiting verifyData()..." }
+            Timber.e { "verifyData(): Invalid signature." }
+            Timber.e { "verifyData(): Exiting verifyData()..." }
             return false
         }
 
@@ -193,26 +153,12 @@ class DataSignatureVerifier(private val context: Context) {
         } catch (e: IllegalArgumentException) {
             // signatureStr wasn't null, but might not have been encoded properly.
             // It's not a valid Base64 string.
+            Timber.e { "verifyData(): String '$signatureStr' cannot be encoded properly. It's not a valid Base64 string." }
             return false
         }
-
         // END_INCLUDE(decode_signature)
 
-        val ks = getKeyStore()
-
-        // Load the key pair from the Android Key Store
-        val entry = ks.getEntry(ALIAS_VERIFY_SIGNATURE, null)
-
-        if (entry == null) {
-            Timber.d { "verifyData(): No key found under alias: $ALIAS_VERIFY_SIGNATURE" }
-            Timber.d { "verifyData(): Exiting verifyData()..." }
-            return false
-        }
-
-        if (entry !is KeyStore.PrivateKeyEntry) {
-            Timber.d { "verifyData(): Not an instance of a PrivateKeyEntry" }
-            return false
-        }
+        val privateKeyEntry = getPrivateKeyEntry() ?: return false
 
         // This class doesn't actually represent the signature,
         // just the engine for creating/verifying signatures, using
@@ -221,9 +167,48 @@ class DataSignatureVerifier(private val context: Context) {
 
         // BEGIN_INCLUDE(verify_data)
         // Verify the data.
-        s.initVerify(entry.certificate)
+        s.initVerify(privateKeyEntry.certificate)
         s.update(data)
         return s.verify(signature)
         // END_INCLUDE(verify_data)
     }
+
+    private fun getPrivateKeyEntry(): KeyStore.PrivateKeyEntry? {
+        val ks = getKeyStore()
+
+        // Load the key pair from the Android Key Store
+        val entry = ks.getEntry(ALIAS_VERIFY_SIGNATURE, null)
+
+        /* If the entry is null, keys were never stored under this alias.
+         * Debug steps in this situation would be:
+         * -Check the list of aliases by iterating over Keystore.aliases(), be sure the alias
+         *   exists.
+         * -If that's empty, verify they were both stored and pulled from the same keystore
+         *   "AndroidKeyStore"
+         */
+        if (entry == null) {
+            Timber.e { "getPrivateKeyEntry(): No key found under alias: $ALIAS_VERIFY_SIGNATURE" }
+            return null
+        }
+
+        /* If entry is not a KeyStore.PrivateKeyEntry, it might have gotten stored in a previous
+         * iteration of your application that was using some other mechanism, or been overwritten
+         * by something else using the same keystore with the same alias.
+         * You can determine the type using entry.getClass() and debug from there.
+         */
+        if (entry !is KeyStore.PrivateKeyEntry) {
+            Timber.e { "getPrivateKeyEntry(): Not an instance of a PrivateKeyEntry" }
+            return null
+        }
+        return entry
+    }
+
+    private fun getKeyStore(): KeyStore {
+        val ks = KeyStore.getInstance(ANDROID_KEYSTORE_PROVIDER)
+        // Weird artifact of Java API.  If you don't have an InputStream to load, you still need
+        // to call "load", or it'll crash.
+        ks.load(null)
+        return ks
+    }
+
 }
