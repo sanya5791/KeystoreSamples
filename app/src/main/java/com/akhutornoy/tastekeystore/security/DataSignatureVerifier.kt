@@ -6,6 +6,7 @@ import android.security.KeyPairGeneratorSpec
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import androidx.annotation.RequiresApi
 import com.github.ajalt.timberkt.Timber
 import java.io.IOException
 import java.math.BigInteger
@@ -33,6 +34,18 @@ class DataSignatureVerifier(private val context: Context) {
         val end = GregorianCalendar()
         end.add(Calendar.YEAR, 1)
 
+        // The KeyPairGeneratorSpec object is how parameters for your key pair are passed
+        // to the KeyPairGenerator.
+        val spec: AlgorithmParameterSpec =
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+                getRsaKeySpecPreM(start.time, end.time)
+            else
+                getRsaKeySpecM(start.time, end.time)
+
+        generateKeyPair(spec)
+    }
+
+    private fun generateKeyPair(spec: AlgorithmParameterSpec) {
         // Initialize a KeyPair generator using the the intended algorithm (in this example, RSA
         // and the KeyStore.  This example uses the AndroidKeyStore.
         val kpGenerator = KeyPairGenerator
@@ -41,44 +54,35 @@ class DataSignatureVerifier(private val context: Context) {
                 ANDROID_KEYSTORE_PROVIDER
             )
 
-        // The KeyPairGeneratorSpec object is how parameters for your key pair are passed
-        // to the KeyPairGenerator.
-        val spec: AlgorithmParameterSpec
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            Timber.d { "createKeys(): for Android PreM " }
-            // Below Android M, use the KeyPairGeneratorSpec.Builder.
-
-            spec = KeyPairGeneratorSpec.Builder(context!!)
-                // You'll use the alias later to retrieve the key.  It's a key for the key!
-                .setAlias(ALIAS_VERIFY_SIGNATURE)
-                // The subject used for the self-signed certificate of the generated pair
-                .setSubject(X500Principal("CN=$ALIAS_VERIFY_SIGNATURE"))
-                // The serial number used for the self-signed certificate of the
-                // generated pair.
-                .setSerialNumber(BigInteger.valueOf(1337))
-                // Date range of validity for the generated pair.
-                .setStartDate(start.time)
-                .setEndDate(end.time)
-                .build()
-        } else {
-            Timber.d { "createKeys(): for Android M and later " }
-            // On Android M or above, use the KeyGenparameterSpec.Builder and specify permitted
-            // properties  and restrictions of the key.
-            spec = KeyGenParameterSpec.Builder(ALIAS_VERIFY_SIGNATURE, KeyProperties.PURPOSE_SIGN)
-                .setCertificateSubject(X500Principal("CN=$ALIAS_VERIFY_SIGNATURE"))
-                .setDigests(KeyProperties.DIGEST_SHA256)
-                .setSignaturePaddings(KeyProperties.SIGNATURE_PADDING_RSA_PKCS1)
-                .setCertificateSerialNumber(BigInteger.valueOf(1337))
-                .setCertificateNotBefore(start.time)
-                .setCertificateNotAfter(end.time)
-                .build()
-        }
-
         kpGenerator.initialize(spec)
-
-        val kp = kpGenerator.generateKeyPair()
+        kpGenerator.generateKeyPair()
     }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun getRsaKeySpecM(start: Date, end: Date)=
+        KeyGenParameterSpec.Builder(ALIAS_VERIFY_SIGNATURE, KeyProperties.PURPOSE_SIGN)
+            .setCertificateSubject(X500Principal("CN=$ALIAS_VERIFY_SIGNATURE"))
+            .setDigests(KeyProperties.DIGEST_SHA256)
+            .setSignaturePaddings(KeyProperties.SIGNATURE_PADDING_RSA_PKCS1)
+            .setCertificateSerialNumber(BigInteger.valueOf(1337))
+            .setCertificateNotBefore(start)
+            .setCertificateNotAfter(end)
+            .build()
+
+    @Suppress("DEPRECATION")
+    fun getRsaKeySpecPreM(start: Date, end: Date) =
+        KeyPairGeneratorSpec.Builder(context!!)
+            // You'll use the alias later to retrieve the key.  It's a key for the key!
+            .setAlias(ALIAS_VERIFY_SIGNATURE)
+            // The subject used for the self-signed certificate of the generated pair
+            .setSubject(X500Principal("CN=$ALIAS_VERIFY_SIGNATURE"))
+            // The serial number used for the self-signed certificate of the
+            // generated pair.
+            .setSerialNumber(BigInteger.valueOf(1337))
+            // Date range of validity for the generated pair.
+            .setStartDate(start)
+            .setEndDate(end)
+            .build()
 
     /**
      * Signs the data using the key pair stored in the Android Key Store.  This signature can be
@@ -95,9 +99,9 @@ class DataSignatureVerifier(private val context: Context) {
         CertificateException::class
     )
     fun signData(inputStr: String): String {
-        val data = inputStr.toByteArray()
 
-        val privateKeyEntry = getPrivateKeyEntry() ?: return ""
+        val privateKeyEntry =
+            getPrivateKey() ?: throw KeyStoreException("Can't obtain 'Private Key'")
 
         // BEGIN_INCLUDE(sign_create_signature)
         // This class doesn't actually represent the signature,
@@ -109,7 +113,7 @@ class DataSignatureVerifier(private val context: Context) {
         s.initSign(privateKeyEntry.privateKey)
 
         // Sign the data, store the result as a Base64 encoded String.
-        s.update(data)
+        s.update(inputStr.toByteArray())
         val signatureBytes = s.sign()
         // END_INCLUDE(sign_data)
 
@@ -158,7 +162,7 @@ class DataSignatureVerifier(private val context: Context) {
         }
         // END_INCLUDE(decode_signature)
 
-        val privateKeyEntry = getPrivateKeyEntry() ?: return false
+        val privateKeyEntry = getPrivateKey() ?: return false
 
         // This class doesn't actually represent the signature,
         // just the engine for creating/verifying signatures, using
@@ -173,7 +177,7 @@ class DataSignatureVerifier(private val context: Context) {
         // END_INCLUDE(verify_data)
     }
 
-    private fun getPrivateKeyEntry(): KeyStore.PrivateKeyEntry? {
+    private fun getPrivateKey(): KeyStore.PrivateKeyEntry? {
         val ks = getKeyStore()
 
         // Load the key pair from the Android Key Store
@@ -187,7 +191,7 @@ class DataSignatureVerifier(private val context: Context) {
          *   "AndroidKeyStore"
          */
         if (entry == null) {
-            Timber.e { "getPrivateKeyEntry(): No key found under alias: $ALIAS_VERIFY_SIGNATURE" }
+            Timber.e { "getPrivateKey(): No key found under alias: $ALIAS_VERIFY_SIGNATURE" }
             return null
         }
 
@@ -197,7 +201,7 @@ class DataSignatureVerifier(private val context: Context) {
          * You can determine the type using entry.getClass() and debug from there.
          */
         if (entry !is KeyStore.PrivateKeyEntry) {
-            Timber.e { "getPrivateKeyEntry(): Not an instance of a PrivateKeyEntry" }
+            Timber.e { "getPrivateKey(): Not an instance of a PrivateKeyEntry" }
             return null
         }
         return entry
@@ -205,8 +209,7 @@ class DataSignatureVerifier(private val context: Context) {
 
     private fun getKeyStore(): KeyStore {
         val ks = KeyStore.getInstance(ANDROID_KEYSTORE_PROVIDER)
-        // Weird artifact of Java API.  If you don't have an InputStream to load, you still need
-        // to call "load", or it'll crash.
+        // it's obligatory to load 'AndroidKeyStore' with default parameters
         ks.load(null)
         return ks
     }

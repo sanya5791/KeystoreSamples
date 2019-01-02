@@ -4,14 +4,18 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import com.akhutornoy.tastekeystore.Injections
 import com.akhutornoy.tastekeystore.R
 import com.akhutornoy.tastekeystore.data.Repository
 import com.akhutornoy.tastekeystore.security.DataSignatureVerifier
 import com.akhutornoy.tastekeystore.ui.extensions.hideKeyboard
+import com.github.ajalt.timberkt.Timber
 import kotlinx.android.synthetic.main.activity_user_password_verification_activity.*
 import kotlinx.android.synthetic.main.content_user_password_verification_acivity.*
+import java.lang.Exception
+import java.security.KeyStoreException
 
 class UserPasswordVerificationActivity : AppCompatActivity() {
 
@@ -41,17 +45,23 @@ class UserPasswordVerificationActivity : AppCompatActivity() {
 
     private fun onCreateKeysClicked() {
         passwordVerifier.createKeys()
-        info_output_text_view.setText(R.string.keys_generated)
+        showMessage(R.string.keys_generated)
     }
 
     private fun onSignPasswordClicked(v: View) {
         v.hideKeyboard()
 
         val password = password_edit_text.text.toString()
-        val signatureStr = passwordVerifier.signData(password)
-        repository.signature = signatureStr
-
-        info_output_text_view.setText(R.string.password_signed)
+        try {
+            val signatureStr = passwordVerifier.signData(password)
+            repository.signature = signatureStr
+            showMessage(R.string.password_signed)
+        } catch (e: KeyStoreException) {
+            Timber.e (e) { "onSignPasswordClicked(): " }
+            showMessage(getString(R.string.cant_get_private_key))
+        } catch (e: Exception) {
+            Timber.e (e) { "onSignPasswordClicked(): " }
+        }
     }
 
     private fun onVerifyClicked(v: View) {
@@ -62,7 +72,13 @@ class UserPasswordVerificationActivity : AppCompatActivity() {
         val result = passwordVerifier.verifyData(verifyPasswString, signatureStr)
 
         val text = "Passwords are same = $result"
-        info_output_text_view.text = text
+        showMessage(text)
+    }
+
+    private fun showMessage(@StringRes stringRes: Int) = info_output_text_view.setText(stringRes)
+
+    private fun showMessage(message: String) {
+        info_output_text_view.text = message
     }
 
     companion object {

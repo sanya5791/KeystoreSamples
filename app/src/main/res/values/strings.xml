@@ -32,5 +32,6 @@
     <string name="set_system_password">Set System Password first</string>
     <string name="set">Set</string>
     <string name="rsa_encryption_tutorial">1. Put some text to \'Input\' and press \'Encrypt Data\'. You\'ll have it encrypted in \'Output\'\n2. Copy encrypted text from \'Output\' to \'Input\', then click \'Decrypt Data\'. You\'ll see decrypted initial String.</string>
+    <string name="cant_get_private_key">Can\'t obtain \'Private Key\'</string>
 
 </resources>
