@@ -20,6 +20,8 @@
     <string name="create_keys">Create Keys</string>
     <string name="sign_password">Sign Password</string>
     <string name="keys_generated">Keys generated</string>
+    <string name="keys_exist">Keys Exist</string>
+    <string name="keys_not_exist">Keys NOT Exist</string>
     <string name="password_signed">Password Signed</string>
     <string name="password_verification_description">Description: Password entered by User can be securely verified with Android System Keystore.\nFirst step - create keys.\nThen enter a password and \'Sign\' the password. Signature of \'Password\' can be saved anywhere as it is.\nNext enter data to \'Verify Password\' and press corresponding button. Entered password and signature are checked with Android Keystore.\nResult of verification will be shown on top of the screen.</string>
     <string name="rsa_encryption">RSA Encryption</string>
@@ -33,5 +35,6 @@
     <string name="set">Set</string>
     <string name="rsa_encryption_tutorial">1. Put some text to \'Input\' and press \'Encrypt Data\'. You\'ll have it encrypted in \'Output\'\n2. Copy encrypted text from \'Output\' to \'Input\', then click \'Decrypt Data\'. You\'ll see decrypted initial String.</string>
     <string name="cant_get_private_key">Can\'t obtain \'Private Key\'</string>
+    <string name="check_keys">Check Keys</string>
 
 </resources>

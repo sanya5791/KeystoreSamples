@@ -84,6 +84,8 @@ class DataSignatureVerifier(private val context: Context) {
             .setEndDate(end)
             .build()
 
+    fun isKeysCreated() = getPrivateKey() != null
+
     /**
      * Signs the data using the key pair stored in the Android Key Store.  This signature can be
      * used with the data later to verify it was signed by this application.
