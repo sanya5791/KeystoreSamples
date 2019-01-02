@@ -28,8 +28,9 @@ class UserPasswordVerificationActivity : AppCompatActivity() {
         setupActionBar()
 
         create_keys_button.setOnClickListener { onCreateKeysClicked() }
-        sign_password_button.setOnClickListener (this::onSignPasswordClicked)
-        verify_password_button.setOnClickListener (this::onVerifyClicked)
+        sign_password_button.setOnClickListener(this::onSignPasswordClicked)
+        verify_password_button.setOnClickListener(this::onVerifyClicked)
+        check_keys_button.setOnClickListener { onCheckKeysClicked() }
     }
 
     private fun setupActionBar() {
@@ -57,10 +58,10 @@ class UserPasswordVerificationActivity : AppCompatActivity() {
             repository.signature = signatureStr
             showMessage(R.string.password_signed)
         } catch (e: KeyStoreException) {
-            Timber.e (e) { "onSignPasswordClicked(): " }
+            Timber.e(e) { "onSignPasswordClicked(): " }
             showMessage(getString(R.string.cant_get_private_key))
         } catch (e: Exception) {
-            Timber.e (e) { "onSignPasswordClicked(): " }
+            Timber.e(e) { "onSignPasswordClicked(): " }
         }
     }
 
@@ -75,10 +76,17 @@ class UserPasswordVerificationActivity : AppCompatActivity() {
         showMessage(text)
     }
 
-    private fun showMessage(@StringRes stringRes: Int) = info_output_text_view.setText(stringRes)
+    private fun onCheckKeysClicked() {
+        @StringRes val message =
+            if (passwordVerifier.isKeysCreated()) R.string.keys_exist
+            else R.string.keys_not_exist
+        showMessage(message)
+    }
+
+    private fun showMessage(@StringRes stringRes: Int) = info_output_chip.setText(stringRes)
 
     private fun showMessage(message: String) {
-        info_output_text_view.text = message
+        info_output_chip.text = message
     }
 
     companion object {
